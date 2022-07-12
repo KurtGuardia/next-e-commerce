@@ -1,34 +1,24 @@
-import { useEffect, useState } from 'react'
-import Product from '../components/Prodcut'
+import { useState } from 'react'
+import { initMongoose } from '../lib/mongoose'
+import { findAllProducts } from '../pages/api/products'
+import Product from '../components/Product'
+import Layout from '../components/Layout'
 
-export default function Home() {
-  const [productsInfo, setProductsInfo] = useState([])
+export default function Home({ products }) {
   const [phrase, setPhrase] = useState('')
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch('/api/products')
-      const data = await res.json()
-      setProductsInfo(data)
-    }
-    fetchData()
-  }, [])
-
   const categoryNames = [
-    ...new Set(productsInfo.map((p) => p.category)),
+    ...new Set(products.map((p) => p.category)),
   ]
 
-  let products
   if (phrase) {
-    products = productsInfo.filter((p) =>
+    products = products.filter((p) =>
       p.name.toLowerCase().includes(phrase),
     )
-  } else {
-    products = productsInfo
   }
 
   return (
-    <div className='p-5'>
+    <Layout>
       <input
         value={phrase}
         onChange={(e) => setPhrase(e.target.value)}
@@ -65,6 +55,16 @@ export default function Home() {
           </div>
         ))}
       </div>
-    </div>
+    </Layout>
   )
+}
+
+export const getServerSideProps = async (ctx) => {
+  await initMongoose()
+  const products = await findAllProducts()
+  return {
+    props: {
+      products: JSON.parse(JSON.stringify(products)),
+    },
+  }
 }

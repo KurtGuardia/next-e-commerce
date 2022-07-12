@@ -1,4 +1,21 @@
-const Product = ({ name, price, description, picture }) => {
+import { set } from 'mongoose'
+import { useContext } from 'react'
+import { ProductsContext } from './ProductsContext'
+
+const Product = ({
+  _id,
+  name,
+  price,
+  description,
+  picture,
+}) => {
+  const { setSelectedProducts } =
+    useContext(ProductsContext)
+
+  function addProduct() {
+    setSelectedProducts((prev) => [...prev, _id])
+  }
+
   return (
     <div className='w-64'>
       <div className='bg-blue-100 p-5 rounded-xl'>
@@ -14,7 +31,10 @@ const Product = ({ name, price, description, picture }) => {
         <div className='text-2xl font-bold grow'>
           {price}
         </div>
-        <button className='bg-emerald-400 text-white py-1 px-3 rounded-xl'>
+        <button
+          onClick={addProduct}
+          className='bg-emerald-400 text-white py-1 px-3 rounded-xl'
+        >
           +
         </button>
       </div>
